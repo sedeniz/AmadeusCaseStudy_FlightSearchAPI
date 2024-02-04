@@ -3,7 +3,7 @@ package com.example.amadeus_flightsearchapi.service.impl;
 import com.example.amadeus_flightsearchapi.model.Airport;
 import com.example.amadeus_flightsearchapi.repository.AirportRepository;
 import com.example.amadeus_flightsearchapi.service.AirportService;
-import jakarta.annotation.PostConstruct;
+import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -4,7 +4,7 @@ import com.example.amadeus_flightsearchapi.model.Airport;
 import com.example.amadeus_flightsearchapi.model.Flight;
 import com.example.amadeus_flightsearchapi.service.AirportService;
 import com.example.amadeus_flightsearchapi.service.FlightService;
-import jakarta.annotation.PostConstruct;
+import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -31,7 +31,7 @@ public class FlightDataFetcher {
     private static final String[] cities = {"Istanbul", "Madrid", "New York", "Rome", "Berlin"};
     private static final int WEEKS = 4; // Number of cycles
 
-    //@Scheduled(cron = "0 0 * * * ?") // This task runs everyday at midnight
+    @Scheduled(cron = "0 0 0 * * ?") // This task runs everyday at midnight
     @PostConstruct
     public void fetchFlights() {
         List<Airport> airports = airportService.findAllAirports();

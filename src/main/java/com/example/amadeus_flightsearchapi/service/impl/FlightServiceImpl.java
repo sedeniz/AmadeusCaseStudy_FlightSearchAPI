@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FlightServiceImpl implements FlightService {
@@ -21,9 +23,30 @@ public class FlightServiceImpl implements FlightService {
 
     @Override
     public List<Flight> searchFlights(String departureAirport, String arrivalAirport, LocalDateTime departureDateTime, LocalDateTime returnDateTime) {
-        // Implement search logic here, possibly using flightRepository
-        return flightRepository.findAll(); // Placeholder for actual implementation
+
+        List<Flight> flights = flightRepository.findAll();
+
+        List<Flight> outboundFlights = flights.stream()
+                .filter(flight -> flight.getDepartureAirport().equals(departureAirport)
+                        && flight.getArrivalAirport().equals(arrivalAirport)
+                        && flight.getDepartureDateTime().isEqual(departureDateTime))
+                .toList();
+
+        List<Flight> matchingFlights = new ArrayList<>(outboundFlights);
+
+        if (returnDateTime != null) {
+            List<Flight> returnFlights = flights.stream()
+                    .filter(flight -> flight.getDepartureAirport().equals(arrivalAirport)
+                            && flight.getArrivalAirport().equals(departureAirport)
+                            && flight.getDepartureDateTime().isEqual(returnDateTime))
+                    .toList();
+
+            matchingFlights.addAll(returnFlights);
+        }
+
+        return matchingFlights;
     }
+
 
     @Override
     public Flight saveFlight(Flight flight) {
