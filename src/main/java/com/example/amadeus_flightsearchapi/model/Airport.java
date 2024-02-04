@@ -1,4 +1,4 @@
-package com.example.amadeus_flightsearchapi.domain;
+package com.example.amadeus_flightsearchapi.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
