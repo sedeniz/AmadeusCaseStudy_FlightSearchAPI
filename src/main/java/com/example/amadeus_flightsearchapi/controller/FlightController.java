@@ -4,10 +4,7 @@ import com.example.amadeus_flightsearchapi.model.Flight;
 import com.example.amadeus_flightsearchapi.service.FlightService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,6 +21,32 @@ public class FlightController {
         this.flightService = flightService;
     }
 
+    @PostMapping
+    public Flight addFlight(@RequestBody Flight flight) {
+        return flightService.saveFlight(flight);
+    }
+
+    @GetMapping()
+    public List<Flight> listAllFlights() {
+        return flightService.findAllFlights();
+    }
+
+    @GetMapping("/{id}")
+    public Flight getFlightById(@PathVariable Long id) {
+        return flightService.getFlightById(id);
+    }
+
+    @PutMapping("/{id}")
+    public Flight updateFlight(@PathVariable Long id, @RequestBody Flight flight) {
+        flight.setId(id);
+        return flightService.updateFlight(flight);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteFlight(@PathVariable Long id) {
+        flightService.deleteFlight(id);
+    }
+
     @GetMapping("/search")
     public List<Flight> searchFlights(
             @RequestParam String departureAirport,
@@ -34,8 +57,4 @@ public class FlightController {
         return flightService.searchFlights(departureAirport, arrivalAirport, departureDateTime, returnDateTime);
     }
 
-    @GetMapping("/list")
-    public List<Flight> listAllFlights() {
-        return flightService.findAllFlights();
-    }
 }

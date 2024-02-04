@@ -16,6 +16,7 @@ public class AirportController {
 
     @PostMapping
     public Airport addAirport(@RequestBody Airport airport) {
+
         return airportService.saveAirport(airport);
     }
 

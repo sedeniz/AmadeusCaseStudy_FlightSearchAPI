@@ -1,7 +1,11 @@
 package com.example.amadeus_flightsearchapi.scheduled;
 
+import com.example.amadeus_flightsearchapi.model.Airport;
 import com.example.amadeus_flightsearchapi.model.Flight;
+import com.example.amadeus_flightsearchapi.service.AirportService;
 import com.example.amadeus_flightsearchapi.service.FlightService;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -13,46 +17,60 @@ import java.util.Random;
 
 @Component
 public class FlightDataFetcher {
+
     private final FlightService flightService;
+    private final AirportService airportService;
     private final Random random = new Random();
 
-    public FlightDataFetcher(FlightService flightService){
+    @Autowired
+    public FlightDataFetcher(FlightService flightService, AirportService airportService) {
         this.flightService = flightService;
+        this.airportService = airportService;
     }
 
-    // Runs every day at midnight
-    //@Scheduled(cron = "0 0 0 * * ?")
-    @Scheduled(cron = "0 0/5 * * * ?")
-    public void fetchFlightData() {
-        List<Flight> flights = generateMockFlights(10); // Generate 10 mock flights
+    private static final String[] cities = {"Istanbul", "Madrid", "New York", "Rome", "Berlin"};
+    private static final int WEEKS = 4; // Number of cycles
 
-        flights.forEach(flightService::saveFlight);
-    }
+    //@Scheduled(cron = "0 0 * * * ?") // This task runs everyday at midnight
+    @PostConstruct
+    public void fetchFlights() {
+        List<Airport> airports = airportService.findAllAirports();
 
-    private List<Flight> generateMockFlights(int numberOfFlights) {
-        List<Flight> flights = new ArrayList<>();
-        for (int i = 0; i < numberOfFlights; i++) {
-            Flight mockFlight = new Flight();
-            String departureCity = generateRandomCity();
-            String arrivalCity;
-
-            do {
-                arrivalCity = generateRandomCity(); // Ensure departure and arrival cities are not the same
-            } while(arrivalCity.equals(departureCity));
-
-            mockFlight.setDepartureAirport(departureCity);
-            mockFlight.setArrivalAirport(arrivalCity);
-            mockFlight.setDepartureDateTime(LocalDateTime.now().plusDays(random.nextInt(30)));
-            mockFlight.setReturnDateTime(mockFlight.getDepartureDateTime().plusDays(2 + random.nextInt(10))); // Ensuring return date is after departure
-            mockFlight.setPrice(new BigDecimal(100 + random.nextInt(900))); // Random price between 100 and 1000
-            flights.add(mockFlight);
+        if (airports.size() < 2) {
+            System.out.println("You need at least two airports to generate flights.");
+            return;
         }
-        return flights;
-    }
 
-    private String generateRandomCity() {
-        String[] cities = {"Istanbul", "Rome", "Barcelona", "New York", "Los Angeles", "Paris", "London", "Dubai", "Tokyo", "Seoul"};
-        return cities[random.nextInt(cities.length)];
-    }
+        flightService.deleteAllFlights();
+        LocalDateTime now = LocalDateTime.now();
 
+        for (int i = 0; i < airports.size(); i++) {
+            for (int j = 0; j < airports.size(); j++) {
+                if (i == j) continue; // Skip flights to the same airport
+
+                String departureCity = airports.get(i).getCity();
+                String arrivalCity = airports.get(j).getCity();
+
+                LocalDateTime departureDateTime = now.plusDays(7 + random.nextInt(8));  // Start 7-14 days from now for the first flight
+
+                for (int week = 0; week < WEEKS; week++) {
+                    BigDecimal price = BigDecimal.valueOf(500 + random.nextInt(1001)); // Random price between 500 and 1500
+
+                    LocalDateTime returnDateTime = departureDateTime.plusWeeks(1);
+                    Flight outboundFlight = new Flight(departureCity, arrivalCity, departureDateTime, week < WEEKS - 1 ? returnDateTime : null, price);
+                    flightService.saveFlight(outboundFlight);
+
+                    if (week < WEEKS - 1) {
+                        // Adjust price for the return flight, ensuring variability
+                        BigDecimal returnPrice = BigDecimal.valueOf(500 + random.nextInt(1001));
+                        Flight returnFlight = new Flight(arrivalCity, departureCity, returnDateTime, returnDateTime.plusWeeks(1), returnPrice);
+                        flightService.saveFlight(returnFlight);
+                    }
+
+                    // Prepare the departure date for the next cycle
+                    departureDateTime = returnDateTime; // Next flight starts on the return date of the current flight
+                }
+            }
+        }
+    }
 }
