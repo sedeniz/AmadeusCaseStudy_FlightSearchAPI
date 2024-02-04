@@ -34,4 +34,19 @@ public class FlightServiceImpl implements FlightService {
     public List<Flight> findAllFlights() {
         return flightRepository.findAll();
     }
+
+    @Override
+    public Flight getFlightById(Long id) {
+        return flightRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public Flight updateFlight(Flight flight) {
+        return flightRepository.save(flight);
+    }
+
+    @Override
+    public void deleteFlight(Long id) {
+        flightRepository.deleteById(id);
+    }
 }

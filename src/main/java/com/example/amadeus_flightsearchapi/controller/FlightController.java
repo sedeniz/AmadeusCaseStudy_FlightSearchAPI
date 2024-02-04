@@ -20,6 +20,7 @@ public class FlightController {
 
     @Autowired
     public FlightController(FlightService flightService) {
+
         this.flightService = flightService;
     }
 
@@ -28,7 +29,8 @@ public class FlightController {
             @RequestParam String departureAirport,
             @RequestParam String arrivalAirport,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime departureDateTime,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime returnDateTime) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime returnDateTime)
+    {
         return flightService.searchFlights(departureAirport, arrivalAirport, departureDateTime, returnDateTime);
     }
 

@@ -1,5 +1,6 @@
 package com.example.amadeus_flightsearchapi.service;
 
+import com.example.amadeus_flightsearchapi.model.Airport;
 import com.example.amadeus_flightsearchapi.model.Flight;
 
 import java.time.LocalDateTime;
@@ -11,4 +12,8 @@ public interface FlightService {
     void saveFlight(Flight mockFlight);
 
     List<Flight> findAllFlights();
+
+    Flight getFlightById(Long id);
+    Flight updateFlight(Flight flight);
+    void deleteFlight(Long id);
 }

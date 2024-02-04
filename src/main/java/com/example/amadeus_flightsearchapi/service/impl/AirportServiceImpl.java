@@ -15,11 +15,37 @@ public class AirportServiceImpl implements AirportService {
 
     @Autowired
     public AirportServiceImpl(AirportRepository airportRepository) {
+
         this.airportRepository = airportRepository;
     }
 
     @Override
+    public Airport saveAirport(Airport airport) {
+
+        return airportRepository.save(airport);
+    }
+
+    @Override
+    public Airport getAirportById(Long id) {
+
+        return airportRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public Airport updateAirport(Airport airport) {
+
+        return airportRepository.save(airport);
+    }
+
+    @Override
+    public void deleteAirport(Long id) {
+
+        airportRepository.deleteById(id);
+    }
+
+    @Override
     public List<Airport> findAllAirports() {
+
         return airportRepository.findAll();
     }
 }
